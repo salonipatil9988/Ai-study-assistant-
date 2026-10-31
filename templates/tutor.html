@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}AI Tutor · AI Study Assistant{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/tutor.js', v='3') }}" defer></script>{% endblock %}
+{% block content %}
+<main class="tutor-shell page-shell">
+  <aside class="tutor-sidebar panel">
+    <div class="tutor-sidebar-heading"><div><p class="eyebrow">YOUR STUDY COPILOT</p><h1>AI tutor</h1></div><button id="new-chat" class="button button-primary new-chat-button" type="button" aria-label="Start a new chat">＋ <span>New chat</span></button></div>
+    <label for="note-context">Ground answers in your notes <span class="optional-label">OPTIONAL</span></label>
+    <select id="note-context" class="context-select" multiple size="4" aria-describedby="context-help"></select>
+    <small id="context-help" class="field-hint">Choose notes for this new chat. Leave empty to find relevant notes automatically. Your saved PYQ patterns may also be used.</small>
+    <div class="thread-heading"><p class="eyebrow">RECENT CONVERSATIONS</p><button id="refresh-chats" class="button button-quiet" type="button" aria-label="Refresh chats">↻</button></div>
+    <div id="thread-list" class="thread-list" aria-live="polite"></div>
+    <p class="tutor-private-note">🔒 Your conversations are private to your account.</p>
+  </aside>
+  <section class="tutor-main panel" aria-label="Study tutor chat">
+    <div class="chat-header"><div><p class="eyebrow">NOTES + PYQ CONTEXT + GENERAL KNOWLEDGE</p><h2 id="chat-title">Start a study conversation</h2></div><button class="button button-quiet danger-button" id="delete-chat" type="button" hidden>Delete chat</button></div>
+    <div class="chat-messages" id="chat-messages" aria-live="polite">
+      <div class="chat-welcome" id="chat-welcome"><div class="chat-welcome-icon">✦</div><h3>What are you studying today?</h3><p>Ask for an explanation, a worked example, or a quick quiz. I’ll look for useful context in your notes and PYQ analyses first.</p>
+        <div class="suggestion-list">
+          <button class="suggestion-chip" type="button">Explain a concept from my notes</button>
+          <button class="suggestion-chip" type="button">Quiz me on an important topic</button>
+          <button class="suggestion-chip" type="button">Help me compare two ideas</button>
+        </div>
+      </div>
+    </div>
+    <form class="chat-composer" id="chat-form">
+      <label class="sr-only" for="chat-input">Your question</label>
+      <textarea id="chat-input" name="message" rows="2" maxlength="8000" placeholder="Ask your study tutor anything..." required></textarea>
+      <div class="chat-composer-footer"><span id="chat-status">AI can make mistakes. Check important facts against your course material.</span><button class="button button-primary" id="send-chat" type="submit"><span>Send</span><span aria-hidden="true">↑</span></button></div>
+    </form>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}My notes · AI Study Assistant{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/app.js', v='7') }}" defer></script>{% endblock %}
+{% block content %}
+<main class="page-shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow"><span class="sparkle">✦</span> YOUR PERSONAL STUDY COPILOT</p>
+        <h1>Make every study<br class="mobile-break"> session <span class="text-gradient">count.</span></h1>
+        <p class="hero-copy">Capture what you learn. Let AI turn your notes into the next thing you need to know.</p>
+      </div>
+      <div class="hero-decoration" aria-hidden="true">
+        <span class="orbit orbit-one"></span><span class="orbit orbit-two"></span><span class="hero-star">✳</span>
+      </div>
+    </section>
+
+    <section class="workspace-grid">
+      <section class="panel composer-panel" aria-labelledby="composer-title">
+        <div class="section-heading">
+          <div class="heading-icon purple-icon">＋</div>
+          <div><h2 id="composer-title">Add a new note</h2><p>Get your ideas down while they're fresh.</p></div>
+        </div>
+        <form id="note-form" method="post" action="{{ url_for('web.create_note_from_form') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label for="note-subject">Subject <span class="optional-label">OPTIONAL</span></label>
+          <input id="note-subject" name="subject" type="text" maxlength="120" placeholder="e.g. Biology">
+          <label for="note-title">Note title</label>
+          <input id="note-title" name="title" type="text" maxlength="255" placeholder="e.g. Photosynthesis — light reactions" required>
+          <label for="note-content">Your notes</label>
+          <textarea id="note-content" name="content" rows="7" placeholder="Paste or type your class notes here..." required></textarea>
+          <div class="form-footer">
+            <span class="helper-text">Your notes stay saved in your study space.</span>
+            <button class="button button-primary" type="submit"><span>Save note</span><span aria-hidden="true">→</span></button>
+          </div>
+          <p class="form-message" id="note-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <aside class="panel tip-panel">
+        <div class="tip-icon">✦</div>
+        <p class="eyebrow">A LITTLE STUDY TIP</p>
+        <h2>Small notes.<br>Big progress.</h2>
+        <p>Save a concept while it’s fresh, then generate quick takeaways and a tricky question to test what really stuck.</p>
+        <div class="tip-rule"></div>
+        <a class="text-link" href="/pyq">Have past papers? Analyze them <span>→</span></a>
+        <div class="tip-decoration" aria-hidden="true">✳</div>
+      </aside>
+    </section>
+
+    <nav class="library-tabs" aria-label="Study workspace sections">
+      <button class="library-tab active" id="notes-tab" type="button" aria-controls="notes-workspace" aria-selected="true">My notes</button>
+      <button class="library-tab" id="ai-space-tab" type="button" aria-controls="ai-workspace" aria-selected="false">AI study space <span class="count-badge" id="ai-material-count">0</span></button>
+    </nav>
+    <section class="notes-section workspace-section" id="notes-workspace" aria-labelledby="notes-title">
+      <div class="notes-heading">
+        <div><p class="eyebrow">YOUR KNOWLEDGE LIBRARY</p>        <h2 id="notes-title">Recent notes <span class="count-badge" id="note-count">{{ notes|length }}</span></h2></div>
+        <div class="library-tools">
+          <label class="sr-only" for="note-search">Search notes</label>
+          <input id="note-search" class="search-input" type="search" placeholder="Search your notes…">
+          <button class="button button-quiet" id="refresh-notes" type="button" aria-label="Refresh notes">↻ <span>Refresh</span></button>
+        </div>
+      </div>
+      <div id="notes-feed" class="notes-feed" aria-live="polite">
+        {% for note in notes %}
+        <article class="note-card">
+          <div class="note-card-header">
+            <h3>{{ note.title }}</h3>
+            <time class="note-date" datetime="{{ note.created_at.isoformat() if note.created_at else '' }}">{{ note.created_at.strftime('%b %d, %Y') if note.created_at else 'Just now' }}</time>
+          </div>
+          <p class="note-subject">{{ note.subject or 'General' }}</p>
+          <p class="note-content">{{ note.content }}</p>
+          <div class="note-actions"><a class="button button-quiet" href="{{ url_for('web.note_detail', note_id=note.id) }}">Open full note</a></div>
+        </article>
+        {% else %}
+        <div class="empty-state"><span class="empty-icon">✎</span><h3>Your next great idea starts here.</h3><p>Save a note above and it’ll show up in your library.</p></div>
+        {% endfor %}
+      </div>
+    </section>
+    <section class="notes-section workspace-section ai-workspace" id="ai-workspace" aria-labelledby="ai-workspace-title" hidden>
+      <div class="ai-workspace-intro">
+        <div><p class="eyebrow">YOUR PERSONAL AI STUDY ROOM</p><h2 id="ai-workspace-title">Learn it. Then test it.</h2><p>AI Teacher turns your saved notes into quick lessons. AI Confuser gives you a tricky question to check your understanding.</p></div>
+        <a class="button button-primary" href="/tutor">Open AI tutor <span aria-hidden="true">→</span></a>
+      </div>
+      <div id="ai-material-feed" class="ai-material-feed" aria-live="polite">
+        <div class="empty-state"><span class="empty-icon">✦</span><h3>Your AI study material will live here.</h3><p>Open a note and choose “Generate AI study material” to create takeaways and a concept-check question.</p></div>
+      </div>
+    </section>
+  </main>
+{% endblock %}

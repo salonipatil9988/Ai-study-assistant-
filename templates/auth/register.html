@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Create account · AI Study Assistant{% endblock %}
+{% block content %}
+<main class="auth-shell">
+  <section class="panel auth-panel">
+    <div class="auth-mark">✦</div>
+    <p class="eyebrow">YOUR OWN STUDY SPACE</p>
+    <h1>Start learning<br>with intention.</h1>
+    <p class="auth-copy">Create an account. Your notes and exam analyses stay private to you.</p>
+    <form method="post" action="{{ url_for('auth.register') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" autocomplete="username" minlength="3" maxlength="80" pattern="[A-Za-z0-9_]{3,80}" aria-describedby="username-hint" required autofocus>
+      <small class="field-hint" id="username-hint">3–80 letters, numbers, or underscores.</small>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" aria-describedby="password-hint" required>
+      <small class="field-hint" id="password-hint">Use at least 10 characters.</small>
+      <button class="button button-primary auth-submit" type="submit">Create account <span>→</span></button>
+    </form>
+    <p class="auth-switch">Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+  </section>
+</main>
+{% endblock %}

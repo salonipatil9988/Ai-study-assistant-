@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7fb">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}AI Study Assistant{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  {% block scripts %}{% endblock %}
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('web.dashboard') if current_user.is_authenticated else url_for('auth.login') }}" aria-label="AI Study Assistant home">
+      <span class="brand-mark">✦</span><span>Study<span class="brand-accent">mate</span></span>
+    </a>
+    {% if current_user.is_authenticated %}
+    <nav class="nav-links" aria-label="Main navigation">
+      <a class="nav-link {% if request.endpoint == 'web.dashboard' %}active{% endif %}" href="{{ url_for('web.dashboard') }}">My notes</a>
+      <a class="nav-link {% if request.endpoint == 'web.tutor_page' %}active{% endif %}" href="{{ url_for('web.tutor_page') }}">AI tutor</a>
+      <a class="nav-link {% if request.endpoint == 'web.pyq_page' %}active{% endif %}" href="{{ url_for('web.pyq_page') }}">PYQ analyzer <span class="nav-arrow">↗</span></a>
+    </nav>
+    <div class="account-nav"><span class="account-name">{{ current_user.username }}</span>
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="button button-quiet logout-button" type="submit">Sign out</button>
+      </form>
+    </div>
+    {% else %}
+    <nav class="nav-links" aria-label="Account navigation">
+      <a class="nav-link {% if request.endpoint == 'auth.login' %}active{% endif %}" href="{{ url_for('auth.login') }}">Sign in</a>
+      <a class="nav-link {% if request.endpoint == 'auth.register' %}active{% endif %}" href="{{ url_for('auth.register') }}">Create account</a>
+    </nav>
+    {% endif %}
+  </header>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-stack" role="status">
+      {% for category, message in messages %}
+      <p class="flash-message {{ category }}">{{ message }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+  <footer class="site-footer"><span>Study smarter, one idea at a time.</span><span>Made for curious minds <span class="footer-star">✦</span></span></footer>
+</body>
+</html>

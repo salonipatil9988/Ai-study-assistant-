@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ note.title }} · AI Study Assistant{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/note-detail.js', v='2') }}" defer></script>{% endblock %}
+{% block content %}
+<main class="page-shell note-detail-shell" data-note-id="{{ note.id }}">
+  <a class="back-link" href="/">← Back to notes</a>
+  <header class="note-detail-header">
+    <div><p class="eyebrow">{{ note.subject or "YOUR STUDY NOTES" }}</p><h1>{{ note.title }}</h1><time class="note-date">{{ note.created_at.strftime("%B %d, %Y") }}</time></div>
+    <a class="button button-quiet" href="/tutor?note_id={{ note.id }}">Ask AI tutor about this note ↗</a>
+  </header>
+  <div class="note-detail-grid">
+    <article class="panel source-note-panel">
+      <div class="section-heading"><div class="heading-icon purple-icon">✎</div><div><h2>Your original note</h2><p>Your saved content, unchanged by AI.</p></div></div>
+      <div class="source-note-content">{{ note.content }}</div>
+    </article>
+    <section class="panel generated-study-panel">
+      <div class="section-heading"><div class="heading-icon coral-icon">✦</div><div><h2>AI study material</h2><p>Generated from this note. Review it in your AI study space.</p></div></div>
+      <p class="form-message" id="detail-message" role="status" aria-live="polite"></p>
+      {% if note.ai_summary and note.ai_confuser %}
+      <div class="detail-ai-material">
+        {% if note.ai_summary %}<section class="note-result purple"><h3>AI Teacher · 3 key takeaways</h3><p>{{ note.ai_summary }}</p></section>{% endif %}
+        {% if note.ai_confuser %}<section class="note-result coral"><h3>AI Confuser · Test yourself</h3><p>{{ note.ai_confuser }}</p></section>{% endif %}
+      </div>
+      <a class="button button-primary pdf-download" href="/api/notes/{{ note.id }}/study-material.pdf">Download study material PDF ↓</a>
+      {% else %}
+      <div class="empty-state detail-empty"><span class="empty-icon">✦</span><h3>No AI material yet</h3><p>Generate takeaways and a tricky concept question based on your saved note.</p></div>
+      {% endif %}
+      <button class="button button-primary detail-generate-button" id="generate-detail-material" type="button">{% if note.ai_summary and note.ai_confuser %}Regenerate AI study material ✦{% else %}Generate AI study material ✦{% endif %}</button>
+    </section>
+  </div>
+</main>
+{% endblock %}
