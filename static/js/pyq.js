@@ -7,6 +7,83 @@ const historyCount = document.querySelector("#history-count");
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 document.querySelector("#refresh-history").addEventListener("click", loadHistory);
 
+function renderTopics(topics) {
+  const container = document.querySelector("#repeated-topics");
+  container.replaceChildren();
+  if (!topics || !topics.length) {
+    const empty = document.createElement("p");
+    empty.className = "result-copy";
+    empty.textContent = "No repeated topics identified.";
+    container.append(empty);
+    return;
+  }
+  topics.forEach((topic) => {
+    const card = document.createElement("article");
+    card.className = "topic-card";
+    const heading = document.createElement("div");
+    heading.className = "topic-card-heading";
+    const title = document.createElement("h3");
+    title.textContent = topic.topic;
+    const priority = document.createElement("span");
+    priority.className = `priority-chip ${String(topic.priority || "Practice").toLowerCase()}`;
+    priority.textContent = `${topic.priority || "Practice"} priority`;
+    heading.append(title, priority);
+    const evidence = document.createElement("p");
+    const references = topic.question_ids?.length ? ` · Evidence: ${topic.question_ids.map((id) => `Q${id}`).join(", ")}` : "";
+    evidence.textContent = `${topic.question_count || 0} question(s) cited${topic.years?.length ? ` · ${topic.years.join(", ")}` : " · no year labels provided"}${references}`;
+    const rationale = document.createElement("p");
+    rationale.textContent = topic.rationale || "";
+    card.append(heading, evidence, rationale);
+    container.append(card);
+  });
+}
+
+function renderPracticeQuestions(questions) {
+  const container = document.querySelector("#practice-questions");
+  container.replaceChildren();
+  if (!questions || !questions.length) {
+    const empty = document.createElement("p");
+    empty.className = "result-copy";
+    empty.textContent = "No practice questions were returned. Try adding year-tagged questions.";
+    container.append(empty);
+    return;
+  }
+  questions.forEach((item, index) => {
+    const card = document.createElement("article");
+    card.className = "practice-card";
+    const heading = document.createElement("h3");
+    heading.textContent = `${index + 1}. ${item.question}`;
+    const detail = document.createElement("p");
+    detail.textContent = [item.topic, `${item.priority || "Practice"} priority`, item.rationale].filter(Boolean).join(" · ");
+    card.append(heading, detail);
+    container.append(card);
+  });
+}
+
+function displayStudyGuide(data) {
+  renderTopics(data.topics || []);
+  renderPracticeQuestions(data.practice_questions || []);
+  document.querySelector("#trend-summary").textContent = data.trend_summary || "";
+  document.querySelector("#exam-strategy").textContent = data.exam_strategy || "";
+  document.querySelector("#analysis-confidence").textContent = data.confidence_note || "Priority reflects the supplied PYQs; it is not a prediction guarantee.";
+  
+  const metrics = document.querySelector("#analysis-metrics");
+  metrics.replaceChildren();
+  [
+    `${data.question_count || 0} question${data.question_count === 1 ? "" : "s"} reviewed`,
+    data.exam_name || "Exam not specified",
+    data.year_range || "Years not specified",
+  ].forEach((label) => {
+    const badge = document.createElement("span");
+    badge.className = "metric-chip";
+    badge.textContent = label;
+    metrics.append(badge);
+  });
+
+  analysisPanel.hidden = false;
+  analysisPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 pyqForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   analyzeButton.disabled = true;
@@ -31,26 +108,9 @@ pyqForm.addEventListener("submit", async (event) => {
     if (!response.ok) {
       throw new Error(result.error || "We couldn't analyze those questions. Please try again.");
     }
-    renderTopics(result.topics || []);
-    document.querySelector("#trend-summary").textContent = result.trend_summary || "";
-    document.querySelector("#exam-strategy").textContent = result.exam_strategy;
-    document.querySelector("#analysis-confidence").textContent = result.confidence_note || "Priority reflects the supplied PYQs; it is not a prediction guarantee.";
-    renderPracticeQuestions(result.practice_questions || []);
-    const metrics = document.querySelector("#analysis-metrics");
-    metrics.replaceChildren();
-    [
-      `${result.question_count || 0} question${result.question_count === 1 ? "" : "s"} reviewed`,
-      result.exam_name || "Exam not specified",
-      result.year_range || "Years not specified",
-    ].forEach((label) => {
-      const badge = document.createElement("span");
-      badge.className = "metric-chip";
-      badge.textContent = label;
-      metrics.append(badge);
-    });
-    analysisPanel.hidden = false;
-    analysisPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    pyqMessage.textContent = "Analysis complete. Your study guide is ready!";
+    
+    displayStudyGuide(result);
+    pyqMessage.textContent = "Analysis complete. Your study guide is ready below!";
     pyqMessage.className = "form-message success";
     await loadHistory();
   } catch (error) {
@@ -59,51 +119,6 @@ pyqForm.addEventListener("submit", async (event) => {
   } finally {
     analyzeButton.disabled = false;
     analyzeButton.innerHTML = "<span>Analyze questions</span><span aria-hidden=\"true\">✦</span>";
-  }
-
-  function renderTopics(topics) {
-    const container = document.querySelector("#repeated-topics");
-    container.replaceChildren();
-    topics.forEach((topic) => {
-      const card = document.createElement("article");
-      card.className = "topic-card";
-      const heading = document.createElement("div");
-      heading.className = "topic-card-heading";
-      const title = document.createElement("h3");
-      title.textContent = topic.topic;
-      const priority = document.createElement("span");
-      priority.className = `priority-chip ${String(topic.priority || "Practice").toLowerCase()}`;
-      priority.textContent = `${topic.priority || "Practice"} priority`;
-      heading.append(title, priority);
-      const evidence = document.createElement("p");
-      const references = topic.question_ids?.length ? ` · Evidence: ${topic.question_ids.map((id) => `Q${id}`).join(", ")}` : "";
-      evidence.textContent = `${topic.question_count || 0} question(s) cited${topic.years?.length ? ` · ${topic.years.join(", ")}` : " · no year labels provided"}${references}`;
-      const rationale = document.createElement("p");
-      rationale.textContent = topic.rationale || "";
-      card.append(heading, evidence, rationale);
-      container.append(card);
-    });
-  }
-
-  function renderPracticeQuestions(questions) {
-    const container = document.querySelector("#practice-questions");
-    container.replaceChildren();
-    if (!questions.length) {
-      const empty = document.createElement("p");
-      empty.textContent = "No practice questions were returned. Try adding year-tagged questions.";
-      container.append(empty);
-      return;
-    }
-    questions.forEach((item, index) => {
-      const card = document.createElement("article");
-      card.className = "practice-card";
-      const heading = document.createElement("h3");
-      heading.textContent = `${index + 1}. ${item.question}`;
-      const detail = document.createElement("p");
-      detail.textContent = [item.topic, `${item.priority || "Practice"} priority`, item.rationale].filter(Boolean).join(" · ");
-      card.append(heading, detail);
-      container.append(card);
-    });
   }
 });
 
@@ -148,21 +163,7 @@ function renderHistoryItem(item) {
   view.type = "button";
   view.textContent = "View study guide";
   view.addEventListener("click", () => {
-    renderTopics(item.topics || []);
-    renderPracticeQuestions(item.practice_questions || []);
-    document.querySelector("#trend-summary").textContent = item.trend_summary || "";
-    document.querySelector("#exam-strategy").textContent = item.exam_strategy;
-    document.querySelector("#analysis-confidence").textContent = item.confidence_note || "Priority reflects the supplied PYQs; it is not a prediction guarantee.";
-    const metrics = document.querySelector("#analysis-metrics");
-    metrics.replaceChildren();
-    [`${item.question_count || 0} questions reviewed`, item.exam_name || "Exam not specified", item.year_range || "Years not specified"].forEach((label) => {
-      const badge = document.createElement("span");
-      badge.className = "metric-chip";
-      badge.textContent = label;
-      metrics.append(badge);
-    });
-    analysisPanel.hidden = false;
-    analysisPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+    displayStudyGuide(item);
   });
   const remove = document.createElement("button");
   remove.className = "button button-quiet danger-button";

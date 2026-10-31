@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}PYQ Analyzer · AI Study Assistant{% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/pyq.js', v='4') }}" defer></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pyq.js', v='5') }}" defer></script>{% endblock %}
 {% block content %}
 <main class="page-shell pyq-shell">
     <a class="back-link" href="/">← Back to my notes</a>
@@ -38,17 +38,6 @@
         </form>
       </section>
 
-      <section class="panel analysis-panel" id="analysis-panel" aria-labelledby="analysis-title" hidden>
-        <div class="analysis-title-row"><div><p class="eyebrow">YOUR AI-GENERATED STUDY GUIDE</p><h2 id="analysis-title">Your exam pattern</h2></div><span class="analysis-sparkle">✳</span></div>
-        <div class="analysis-metrics" id="analysis-metrics"></div>
-        <p class="analysis-trend" id="trend-summary"></p>
-        <div class="analysis-block topics-block"><span class="result-label"><span class="result-dot purple-dot"></span> REPEATED TOPICS & PRIORITY</span><div class="topic-results" id="repeated-topics"></div></div>
-        <div class="analysis-block strategy-block"><span class="result-label"><span class="result-dot coral-dot"></span> HIGH-PRIORITY STRATEGY</span><div class="result-copy" id="exam-strategy"></div></div>
-        <div class="analysis-block practice-block"><span class="result-label"><span class="result-dot purple-dot"></span> PRACTICE QUESTION PATTERNS</span><div class="practice-list" id="practice-questions"></div></div>
-        <p class="analysis-confidence" id="analysis-confidence"></p>
-        <p class="analysis-disclaimer">Patterns are based on the questions you provided. Use them as a guide alongside your full syllabus.</p>
-      </section>
-
       <aside class="panel tip-panel pyq-tip">
         <div class="tip-icon coral-tip-icon">◎</div><p class="eyebrow">GET BETTER INSIGHTS</p>
         <h2>Context is<br>everything.</h2>
@@ -56,6 +45,39 @@
         <div class="tip-rule"></div><p class="tip-note">AI analysis is a study aid, not a guarantee of what will appear in your exam.</p>
       </aside>
     </section>
+
+    <!-- Full-width study guide container for clear, wide presentation -->
+    <section class="panel analysis-panel analysis-panel-wide" id="analysis-panel" aria-labelledby="analysis-title" hidden>
+      <div class="analysis-title-row">
+        <div>
+          <p class="eyebrow">YOUR AI-GENERATED STUDY GUIDE</p>
+          <h2 id="analysis-title">Your exam pattern</h2>
+        </div>
+        <span class="analysis-sparkle">✳</span>
+      </div>
+      <div class="analysis-metrics" id="analysis-metrics"></div>
+      <p class="analysis-trend" id="trend-summary"></p>
+
+      <div class="analysis-grid-row">
+        <div class="analysis-block topics-block">
+          <span class="result-label"><span class="result-dot purple-dot"></span> REPEATED TOPICS & PRIORITY</span>
+          <div class="topic-results" id="repeated-topics"></div>
+        </div>
+        <div class="analysis-block strategy-block">
+          <span class="result-label"><span class="result-dot coral-dot"></span> HIGH-PRIORITY STRATEGY</span>
+          <div class="result-copy" id="exam-strategy"></div>
+        </div>
+      </div>
+
+      <div class="analysis-block practice-block">
+        <span class="result-label"><span class="result-dot purple-dot"></span> PRACTICE QUESTION PATTERNS</span>
+        <div class="practice-list" id="practice-questions"></div>
+      </div>
+
+      <p class="analysis-confidence" id="analysis-confidence"></p>
+      <p class="analysis-disclaimer">Patterns are based on the questions you provided. Use them as a guide alongside your full syllabus.</p>
+    </section>
+
     <section class="history-section" aria-labelledby="history-title">
       <div class="notes-heading">
         <div><p class="eyebrow">YOUR PAST ANALYSES</p><h2 id="history-title">PYQ history <span class="count-badge" id="history-count">0</span></h2></div>
